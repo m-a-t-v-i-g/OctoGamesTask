@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Game/OGTGameModeBase.h"
+#include "Game/OGTHUD.h"
 
 AOGTGameModeBase::AOGTGameModeBase()
 {
@@ -15,4 +16,6 @@ AOGTGameModeBase::AOGTGameModeBase()
 	{
 		PlayerControllerClass = BP_OGTPlayerController.Class;
 	}
+
+	HUDClass = AOGTHUD::StaticClass();
 }

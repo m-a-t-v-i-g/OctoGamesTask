@@ -38,11 +38,29 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> LookAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Aim")
+	float CameraSensitivity = 0.0;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aim")
+	FName SocketName = "head";
+	
+	FRotator AimOffset;
 public:	
 	virtual void Tick(float DeltaTime) override;
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Controller")
+	APlayerController* GetPlayerController()
+	{
+		return Cast<APlayerController>(GetController());
+	}
+	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+
+	void AimTick();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Aim")
+	FRotator GetAimOffset() { return AimOffset; }
 };
