@@ -16,8 +16,7 @@ void AOGTHUD::DrawCrosshair()
 
 	const float HalfLineSize = 15.0;
 	const float LineThickness = 2.0;
-	const FLinearColor LineColor = FLinearColor(255.0, 255.0, 255.0, 0.5);
 
-	DrawLine(Center.Min - HalfLineSize, Center.Max, Center.Min + HalfLineSize, Center.Max, LineColor, LineThickness);
-	DrawLine(Center.Min, Center.Max - HalfLineSize, Center.Min, Center.Max + HalfLineSize, LineColor, LineThickness);
+	DrawLine(Center.Min - HalfLineSize, Center.Max, Center.Min + HalfLineSize, Center.Max, CrosshairColor, LineThickness);
+	DrawLine(Center.Min, Center.Max - HalfLineSize, Center.Min, Center.Max + HalfLineSize, CrosshairColor, LineThickness);
 }

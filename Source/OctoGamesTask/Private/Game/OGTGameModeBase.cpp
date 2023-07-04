@@ -5,17 +5,21 @@
 
 AOGTGameModeBase::AOGTGameModeBase()
 {
-	static ConstructorHelpers::FClassFinder<APawn> BP_OGTCharacter(TEXT("/Game/Blueprints/Player/BP_OGTCharacter"));
-	if (BP_OGTCharacter.Class != nullptr)
-	{
-		DefaultPawnClass = BP_OGTCharacter.Class;
-	}
-	
 	static ConstructorHelpers::FClassFinder<APlayerController> BP_OGTPlayerController(TEXT("/Game/Blueprints/Player/BP_OGTPlayerController"));
-	if (BP_OGTPlayerController.Class != nullptr)
+	if (BP_OGTPlayerController.Class)
 	{
 		PlayerControllerClass = BP_OGTPlayerController.Class;
 	}
-
-	HUDClass = AOGTHUD::StaticClass();
+	
+	static ConstructorHelpers::FClassFinder<AHUD> BP_OGTHUD(TEXT("/Game/Blueprints/Player/BP_OGTHUD"));
+	if (BP_OGTHUD.Class)
+	{
+		HUDClass = BP_OGTHUD.Class;
+	}
+	
+	static ConstructorHelpers::FClassFinder<APawn> BP_OGTCharacter(TEXT("/Game/Blueprints/Player/BP_OGTCharacter"));
+	if (BP_OGTCharacter.Class)
+	{
+		DefaultPawnClass = BP_OGTCharacter.Class;
+	}
 }

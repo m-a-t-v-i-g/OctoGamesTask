@@ -37,7 +37,7 @@ protected:
 	float GroundSpeed = 0.0;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Movement")
-	EMovementForward MovementForward;
+	EMovementDirection MovementDirection;
 
 	UPROPERTY(BlueprintReadWrite, Category = "State")
 	bool ShouldMove = false;
@@ -47,6 +47,12 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "State")
 	bool IsFalling = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Foots")
+	bool LeftForward = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Foots")
+	bool LeftUp = false;
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Turn")
 	float TurnPivot = 0.0;
@@ -54,16 +60,31 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Turn")
 	float TurnSmooth = 0.0;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Turn")
+	float LeanSmooth = 10.0;
+	
 	UPROPERTY(BlueprintReadWrite, Category = "Rotation")
 	FRotator PreviousRotation;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Rotation")
 	float YawDelta = 0.0;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Rotation")
+	UPROPERTY(BlueprintReadWrite, Category = "Aim")
 	FVector2D AimOffset = FVector2D(0.0);
+
+	UPROPERTY(BlueprintReadWrite, Category = "Aim")
+	float AimSmooth = 5.0;
 	
 public:
+	void SetAimOffset();
+	
 	void SetMovement();
-	void SetTurnPivot();
+	void SetMovementDirection(float InDotProduct);
+
+	void SetTurn();
+	void SetLean();
+	
+	bool IsMoving();
+	bool IsWalking();
+
 };

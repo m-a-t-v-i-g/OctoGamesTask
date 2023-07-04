@@ -7,6 +7,7 @@
 #include "InputActionValue.h"
 #include "OGTCharacter.generated.h"
 
+class UOGTStateComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -24,6 +25,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
+	TObjectPtr<UOGTStateComponent> StateComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
@@ -40,27 +44,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float CameraSensitivity = 0.0;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aim")
-	FName SocketName = "head";
-	
-	FRotator AimOffset;
+
 public:	
 	virtual void Tick(float DeltaTime) override;
-	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Controller")
-	APlayerController* GetPlayerController()
-	{
-		return Cast<APlayerController>(GetController());
-	}
+	APlayerController* GetPlayerController() { return Cast<APlayerController>(GetController()); }
 	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 
-	void AimTick();
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Aim")
-	FRotator GetAimOffset() { return AimOffset; }
 };

@@ -6,7 +6,7 @@
 #include "OGTTypes.generated.h"
 
 UENUM(BlueprintType)
-enum class EMovementForward : uint8
+enum class EMovementDirection : uint8
 {
 	MovingF UMETA(DisplayName = "Forward"),
 	MovingB UMETA(DisplayName = "Backward"),

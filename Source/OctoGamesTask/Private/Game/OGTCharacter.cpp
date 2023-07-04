@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include "Components/OGTStateComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -17,6 +18,8 @@ AOGTCharacter::AOGTCharacter()
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
+	StateComponent = CreateDefaultSubobject<UOGTStateComponent>("State Component");
+	
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
 	SpringArmComponent->SetupAttachment(RootComponent);
 	SpringArmComponent->bUsePawnControlRotation = true;
@@ -57,7 +60,6 @@ void AOGTCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	AimTick();
 }
 
 void AOGTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -99,37 +101,3 @@ void AOGTCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y * CameraSensitivity);
 	}
 }
-
-void AOGTCharacter::AimTick()
-{
-	if (GetPlayerController())
-	{
-		FVector ViewPoint;
-		FRotator ViewRotation;
-		
-		GetPlayerController()->GetPlayerViewPoint(ViewPoint, ViewRotation);
-
-		FHitResult HitResult;
-
-		FVector StartPoint = ViewPoint;
-		FVector EndPoint = StartPoint + ViewRotation.Vector() * 10000.0;
-
-		FCollisionQueryParams QueryParams;
-		
-		QueryParams.AddIgnoredActor(GetOwner());
-		QueryParams.bTraceComplex = true;
-		
-		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartPoint, EndPoint, ECC_Visibility, QueryParams);
-		if (bHit)
-		{
-			DrawDebugLine(GetWorld(), GetMesh()->GetSocketLocation(SocketName), HitResult.ImpactPoint, FColor::Red,
-			              false, -1.0, 0, 2.5);
-			AimOffset = UKismetMathLibrary::FindLookAtRotation(GetMesh()->GetSocketLocation(SocketName), HitResult.ImpactPoint);
-			GEngine->AddOnScreenDebugMessage(1, 1.0, FColor::Cyan,
-			                                 FString::Printf(
-				                                 TEXT("Found point X: %f Y: %f Z: %f"), AimOffset.Yaw, AimOffset.Pitch,
-				                                 AimOffset.Roll));
-		}
-	}
-}
-

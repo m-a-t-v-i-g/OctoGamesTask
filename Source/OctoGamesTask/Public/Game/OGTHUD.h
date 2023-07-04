@@ -14,6 +14,9 @@ class OCTOGAMESTASK_API AOGTHUD : public AHUD
 protected:
 	virtual void DrawHUD() override;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Crosshair")
+	FLinearColor CrosshairColor;
+	
 public:
 	void DrawCrosshair();
 };
