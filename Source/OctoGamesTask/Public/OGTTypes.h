@@ -6,10 +6,17 @@
 #include "OGTTypes.generated.h"
 
 UENUM(BlueprintType)
-enum class EMovementDirection : uint8
+enum class ECharacterState : uint8
+{
+	Aiming UMETA(DisplayName = "Aiming"),
+	NotAiming UMETA(DisplayName = "Not aiming")
+};
+
+UENUM(BlueprintType)
+enum class EMovementDir : uint8
 {
 	MovingF UMETA(DisplayName = "Forward"),
-	MovingB UMETA(DisplayName = "Backward"),
+	MovingB UMETA(DisplayName = "Backward")
 };
 
 UCLASS()

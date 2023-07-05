@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Components/OGTStateComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 UOGTStateComponent::UOGTStateComponent()
@@ -20,6 +21,22 @@ void UOGTStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	AimTick(DeltaTime);
+}
+
+void UOGTStateComponent::SetCharacterState(ECharacterState InCharacterState)
+{
+	CharacterState = InCharacterState;
+	switch (CharacterState)
+	{
+	case ECharacterState::Aiming:
+		GetOwnerCharacter()->GetCharacterMovement()->MaxWalkSpeed = 150.0;
+		break;
+	case ECharacterState::NotAiming:
+		GetOwnerCharacter()->GetCharacterMovement()->MaxWalkSpeed = 340.0;
+		break;
+	default:
+		break;
+	}
 }
 
 void UOGTStateComponent::AimTick(float DeltaTime)

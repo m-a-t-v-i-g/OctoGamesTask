@@ -27,6 +27,8 @@ void UOGTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (!Character) return;
 
+	SetCharacterState();
+	
 	SetAimOffset();
 	
 	SetMovement();
@@ -35,6 +37,14 @@ void UOGTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	SetLean();
 
 	PreviousRotation = TryGetPawnOwner()->GetActorRotation();
+}
+
+void UOGTAnimInstance::SetCharacterState()
+{
+	auto GetStateComponent = Character->FindComponentByClass<UOGTStateComponent>();
+	if (!GetStateComponent) return;
+
+	CharacterState = GetStateComponent->GetCharacterState();
 }
 
 void UOGTAnimInstance::SetAimOffset()
@@ -76,13 +86,15 @@ void UOGTAnimInstance::SetMovement()
 
 void UOGTAnimInstance::SetMovementDirection(float InDotProduct)
 {
+	if (!IsMoving()) return;
+	
 	if (InDotProduct >= 0.0)
 	{
-		MovementDirection = EMovementDirection::MovingF;
+		MovementDir = EMovementDir::MovingF;
 	}
-	else if (InDotProduct <= -0.0)
+	else if (InDotProduct <= -0.065)
 	{
-		MovementDirection = EMovementDirection::MovingB;
+		MovementDir = EMovementDir::MovingB;
 	}
 }
 

@@ -18,7 +18,7 @@ protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadOnly)
 	float DeltaTime = 0.0;
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Character")
@@ -27,6 +27,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Character")
 	TObjectPtr<UCharacterMovementComponent> MovementComponent;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Character")
+	ECharacterState CharacterState = ECharacterState::NotAiming;
+	
 	UPROPERTY(BlueprintReadWrite, Category = "Movement")
 	FVector Velocity = FVector(0.0);
 	
@@ -36,9 +39,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Movement")
 	float GroundSpeed = 0.0;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Movement")
-	EMovementDirection MovementDirection;
-
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	EMovementDir MovementDir;
+	
 	UPROPERTY(BlueprintReadWrite, Category = "State")
 	bool ShouldMove = false;
 
@@ -73,9 +76,11 @@ protected:
 	FVector2D AimOffset = FVector2D(0.0);
 
 	UPROPERTY(BlueprintReadWrite, Category = "Aim")
-	float AimSmooth = 5.0;
+	float AimSmooth = 0.0;
 	
 public:
+	void SetCharacterState();
+	
 	void SetAimOffset();
 	
 	void SetMovement();

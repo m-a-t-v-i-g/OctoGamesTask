@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OGTTypes.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/Character.h"
 #include "OGTStateComponent.generated.h"
@@ -17,6 +18,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character")
+	ECharacterState CharacterState = ECharacterState::NotAiming;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Aim")
 	FName SocketName = "head";
@@ -41,8 +45,13 @@ public:
 		return IsValid(Owner) ? Owner : nullptr;
 	}
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Character")
+	ECharacterState GetCharacterState() { return CharacterState; };
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Aim")
 	FRotator GetAimOffset() { return AimOffset; }
+
+	void SetCharacterState(ECharacterState InCharacterState);
 	
 	void AimTick(float DeltaTime);
 };
