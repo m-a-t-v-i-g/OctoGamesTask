@@ -4,6 +4,9 @@
 
 AOGTTrigger::AOGTTrigger()
 {
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Static Mesh");
+	StaticMeshComponent->SetupAttachment(RootComponent);
+	
 	PrimaryActorTick.bCanEverTick = true;
 
 }

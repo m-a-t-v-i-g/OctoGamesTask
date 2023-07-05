@@ -171,12 +171,12 @@ void AOGTCharacter::FindTrigger()
 				FoundTrigger->OnDetected(true);
 			}
 		}
-		else if (!TriggerIsFound(HitResult.GetActor()))
+		if (!TriggerIsFound(HitResult.GetActor()))
 		{
 			if (TempTrigger)
 			{
 				auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempTrigger);
-				if (!FoundTrigger)
+				if (FoundTrigger)
 				{
 					FoundTrigger->OnDetected(false);
 					TempTrigger = nullptr;
@@ -188,7 +188,7 @@ void AOGTCharacter::FindTrigger()
 	{
 		GEngine->AddOnScreenDebugMessage(21, 1.0, FColor::Yellow,
 							FString::Printf(
-								TEXT("Switcher finded: %hhd"), TriggerIsFound(HitResult.GetActor())));
+								TEXT("Switcher found: %hhd"), TriggerIsFound(HitResult.GetActor())));
 		GEngine->AddOnScreenDebugMessage(22, 1.0, FColor::Yellow,
 						 FString::Printf(
 							 TEXT("Actor found: %s"), *HitResult.GetActor()->GetName()));
