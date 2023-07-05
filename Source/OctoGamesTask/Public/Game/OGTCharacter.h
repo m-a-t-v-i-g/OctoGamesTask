@@ -48,6 +48,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> AimAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> InteractAction;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float FieldOfViewMin = 62.0;
 
@@ -58,9 +61,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float CameraSensitivity = 0.35;
-
-	TObjectPtr<AActor> TempTrigger;
 	
+	TObjectPtr<AActor> TempFoundActor;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
+	float TriggerDetectionRange = 39.0;
+
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -83,5 +89,9 @@ public:
 	void UpdateFieldOfView();
 
 	void FindTrigger();
-	bool TriggerIsFound(AActor* InFoundActor);
+	bool IsTrigger(AActor* InFoundActor);
+
+	void Interact();
+	bool CanInteract();
+
 };

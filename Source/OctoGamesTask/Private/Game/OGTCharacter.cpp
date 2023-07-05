@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetStringLibrary.h"
 
 AOGTCharacter::AOGTCharacter()
 {
@@ -24,7 +25,7 @@ AOGTCharacter::AOGTCharacter()
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
 	SpringArmComponent->SetupAttachment(RootComponent);
 	SpringArmComponent->bUsePawnControlRotation = true;
-	SpringArmComponent->SocketOffset = FVector(66.0, 83.0, 72.0);
+	SpringArmComponent->SocketOffset = FVector(98.0, 50.0, 72.0);
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
 	CameraComponent->SetupAttachment(SpringArmComponent);
@@ -40,6 +41,9 @@ AOGTCharacter::AOGTCharacter()
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Aim(TEXT("/Game/Blueprints/Player/Input/Actions/IA_Aim"));
 	AimAction = IA_Aim.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Interact(TEXT("/Game/Blueprints/Player/Input/Actions/IA_Interact"));
+	InteractAction = IA_Interact.Object;
 	
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -59,7 +63,10 @@ void AOGTCharacter::BeginPlay()
 		}
 	}
 
-	FieldOfView = GetCameraComponent()->FieldOfView;
+	if (GetCameraComponent())
+	{
+		FieldOfView = GetCameraComponent()->FieldOfView;
+	}
 }
 
 void AOGTCharacter::Tick(float DeltaTime)
@@ -71,6 +78,10 @@ void AOGTCharacter::Tick(float DeltaTime)
 	UpdateFieldOfView();
 
 	FindTrigger();
+
+	GEngine->AddOnScreenDebugMessage(21, 2.5, FColor::Cyan,
+							 FString::Printf(
+								 TEXT("Can interact: ")) + UKismetStringLibrary::Conv_BoolToString(CanInteract()));
 }
 
 void AOGTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -84,6 +95,8 @@ void AOGTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AOGTCharacter::AimPressed);
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOGTCharacter::AimReleased);
+
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AOGTCharacter::Interact);
 	}
 }
 
@@ -152,7 +165,7 @@ void AOGTCharacter::FindTrigger()
 	FHitResult HitResult;
 
 	FVector StartPoint = ViewPoint;
-	FVector EndPoint = StartPoint + ViewRotation.Vector() * 10000.0;
+	FVector EndPoint = StartPoint + ViewRotation.Vector() * (TriggerDetectionRange * 10.0);
 
 	FCollisionQueryParams QueryParams;
 		
@@ -162,44 +175,71 @@ void AOGTCharacter::FindTrigger()
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartPoint, EndPoint, ECC_Visibility, QueryParams);
 	if (bHit)
 	{
-		if (TriggerIsFound(HitResult.GetActor()))
+		if (IsTrigger(HitResult.GetActor()))
 		{
-			TempTrigger = HitResult.GetActor();
-			auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempTrigger);
+			TempFoundActor = HitResult.GetActor();
+			auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempFoundActor);
 			if (FoundTrigger)
 			{
 				FoundTrigger->OnDetected(true);
 			}
 		}
-		if (!TriggerIsFound(HitResult.GetActor()))
+		if (!IsTrigger(HitResult.GetActor()))
 		{
-			if (TempTrigger)
+			if (TempFoundActor)
 			{
-				auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempTrigger);
+				auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempFoundActor);
 				if (FoundTrigger)
 				{
 					FoundTrigger->OnDetected(false);
-					TempTrigger = nullptr;
+					TempFoundActor = nullptr;
 				}
 			}
 		}
 	}
-	if (HitResult.GetActor())
+	else
 	{
-		GEngine->AddOnScreenDebugMessage(21, 1.0, FColor::Yellow,
-							FString::Printf(
-								TEXT("Switcher found: %hhd"), TriggerIsFound(HitResult.GetActor())));
-		GEngine->AddOnScreenDebugMessage(22, 1.0, FColor::Yellow,
-						 FString::Printf(
-							 TEXT("Actor found: %s"), *HitResult.GetActor()->GetName()));
+		if (TempFoundActor && IsTrigger(TempFoundActor))
+		{
+			auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempFoundActor);
+			if (FoundTrigger)
+			{
+				FoundTrigger->OnDetected(false);
+				TempFoundActor = nullptr;
+			}
+		}
 	}
 }
 
-bool AOGTCharacter::TriggerIsFound(AActor* InFoundActor)
+bool AOGTCharacter::IsTrigger(AActor* InFoundActor)
 {
 	if (InFoundActor->IsA(AOGTTrigger::StaticClass()))
 	{
 		return true;
+	}
+	return false;
+}
+
+void AOGTCharacter::Interact()
+{
+	if (CanInteract())
+	{
+		auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempFoundActor);
+		if (FoundTrigger)
+		{
+			FoundTrigger->OnInteract();
+		}
+	}
+}
+
+bool AOGTCharacter::CanInteract()
+{
+	if (TempFoundActor)
+	{
+		auto Trigger = Cast<IOGTInterfaceInteraction>(TempFoundActor);
+		if (!Trigger) return false;
+
+		return IsValid(TempFoundActor) && IsTrigger(TempFoundActor) || Trigger->IsInteractable();
 	}
 	return false;
 }

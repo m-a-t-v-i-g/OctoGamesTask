@@ -15,7 +15,12 @@ class UOGTInterfaceInteraction : public UInterface
 class OCTOGAMESTASK_API IOGTInterfaceInteraction
 {
 	GENERATED_BODY()
-
+protected:
+	bool Interactable = false;
+	
 public:
 	virtual void OnDetected(bool Switch);
+	virtual void OnInteract();
+
+	virtual bool IsInteractable();
 };
