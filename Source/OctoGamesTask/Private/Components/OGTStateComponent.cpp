@@ -45,25 +45,19 @@ void UOGTStateComponent::AimTick(float DeltaTime)
 	{
 		FVector ViewPoint;
 		FRotator ViewRotation;
-		
+
+		FVector SocketPoint;
+		FRotator SocketRotation;
+
 		GetOwnerController()->GetPlayerViewPoint(ViewPoint, ViewRotation);
-
-		FHitResult HitResult;
-
-		FVector StartPoint = ViewPoint;
-		FVector EndPoint = StartPoint + ViewRotation.Vector() * 10000.0;
-
-		FCollisionQueryParams QueryParams;
+		GetOwnerCharacter()->GetMesh()->GetSocketWorldLocationAndRotation(SocketName, SocketPoint, SocketRotation);
 		
-		QueryParams.AddIgnoredActor(GetOwner());
-		QueryParams.bTraceComplex = true;
+		FVector StartPoint = SocketPoint;
+		FVector EndPoint = StartPoint + ViewRotation.Vector() * 1000.0;
 		
-		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartPoint, EndPoint, ECC_Visibility, QueryParams);
-		if (bHit)
-		{
-			DrawDebugLine(GetWorld(), GetOwnerCharacter()->GetMesh()->GetSocketLocation(SocketName), HitResult.ImpactPoint, FColor::Red,
-						  false, -1.0, 0, 2.5);
-			AimOffset = UKismetMathLibrary::FindLookAtRotation(GetOwnerCharacter()->GetMesh()->GetSocketLocation(SocketName), HitResult.ImpactPoint);
-		}
+		auto CrossProduct = FVector::CrossProduct(GetOwnerCharacter()->GetActorRotation().Vector(), ViewRotation.Vector());
+
+		AimOffset = FRotator(UKismetMathLibrary::RadiansToDegrees(CrossProduct.Z) * UE_HALF_PI,
+		                     UKismetMathLibrary::RadiansToDegrees(ViewRotation.Vector().Z * UE_HALF_PI), 0.0);
 	}
 }

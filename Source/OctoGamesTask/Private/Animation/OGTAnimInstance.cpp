@@ -52,10 +52,10 @@ void UOGTAnimInstance::SetAimOffset()
 	auto GetStateComponent = Character->FindComponentByClass<UOGTStateComponent>();
 	if (!GetStateComponent) return;
 
-	FRotator Delta = UKismetMathLibrary::NormalizedDeltaRotator(GetStateComponent->GetAimOffset(), Character->GetActorRotation());
+	FRotator GetAimOffset = GetStateComponent->GetAimOffset();
 	
-	float TargetX = Delta.Yaw;
-	float TargetY = Delta.Pitch;
+	float TargetX = GetAimOffset.Pitch;
+	float TargetY = GetAimOffset.Yaw;
 
 	AimOffset = UKismetMathLibrary::Vector2DInterpTo(AimOffset, FVector2D(TargetX, TargetY), DeltaTime, AimSmooth);
 

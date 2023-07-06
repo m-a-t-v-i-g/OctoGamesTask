@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Game/OGTGameModeBase.h"
+
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Game/OGTHUD.h"
 
 AOGTGameModeBase::AOGTGameModeBase()
@@ -22,4 +24,10 @@ AOGTGameModeBase::AOGTGameModeBase()
 	{
 		DefaultPawnClass = BP_OGTCharacter.Class;
 	}
+}
+
+void AOGTGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
 }

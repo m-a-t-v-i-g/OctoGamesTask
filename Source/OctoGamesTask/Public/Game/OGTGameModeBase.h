@@ -13,5 +13,7 @@ class OCTOGAMESTASK_API AOGTGameModeBase : public AGameModeBase
 
 public:
 	AOGTGameModeBase();
-	
+
+protected:
+	virtual void BeginPlay() override;
 };
