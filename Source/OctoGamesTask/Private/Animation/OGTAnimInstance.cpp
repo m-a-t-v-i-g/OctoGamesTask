@@ -74,12 +74,20 @@ void UOGTAnimInstance::SetMovement()
 	auto DotProduct = FVector::DotProduct(Character->GetActorForwardVector(), Velocity.GetSafeNormal());
 	auto CrossProduct = FVector::CrossProduct(Character->GetActorForwardVector(), Velocity.GetSafeNormal());
 
+	IsFalling = MovementComponent->IsFalling();
+	if (IsFalling)
+	{
+		Direction = 0.0;
+		
+		GEngine->AddOnScreenDebugMessage(33, 1.0, FColor::Cyan,
+									 FString::Printf(
+										 TEXT("Direction of falling: %f"), Direction));
+
+	}
 	Direction = UKismetMathLibrary::DegAcos(DotProduct) * UKismetMathLibrary::SignOfFloat(CrossProduct.Z);
 	
 	ShouldMove = IsMoving();
 	ShouldWalk = IsWalking();
-	
-	IsFalling = MovementComponent->IsFalling();
 
 	SetMovementDirection(DotProduct);
 }

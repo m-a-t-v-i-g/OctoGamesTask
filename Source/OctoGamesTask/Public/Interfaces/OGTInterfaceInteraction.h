@@ -23,4 +23,5 @@ public:
 	virtual void OnInteract();
 
 	virtual bool IsInteractable();
+
 };

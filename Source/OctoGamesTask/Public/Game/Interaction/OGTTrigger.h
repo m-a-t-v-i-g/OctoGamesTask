@@ -23,10 +23,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
 	TObjectPtr<USceneComponent> SceneComponent;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	TObjectPtr<UStaticMeshComponent> StaticMeshComponent;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Components)
 	TObjectPtr<UBoxComponent> InteractionZone;
 	
 public:	

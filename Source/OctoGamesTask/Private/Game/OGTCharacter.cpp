@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/OGTStateComponent.h"
 #include "Game/Interaction/OGTTrigger.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -44,7 +45,7 @@ AOGTCharacter::AOGTCharacter()
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Interact(TEXT("/Game/Blueprints/Player/Input/Actions/IA_Interact"));
 	InteractAction = IA_Interact.Object;
-	
+
 	PrimaryActorTick.bCanEverTick = true;
 
 }
@@ -52,12 +53,11 @@ AOGTCharacter::AOGTCharacter()
 void AOGTCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	auto PlayerController = Cast<APlayerController>(Controller);
-	if (PlayerController)
+	
+	if (GetPlayerController())
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
-			UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+			UEnhancedInputLocalPlayerSubsystem>(GetPlayerController()->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
@@ -66,6 +66,12 @@ void AOGTCharacter::BeginPlay()
 	if (GetCameraComponent())
 	{
 		FieldOfView = GetCameraComponent()->FieldOfView;
+	}
+
+	auto CreateInteractionWidget = CreateWidget<UUserWidget>(GetPlayerController(), InteractionWidgetClass);
+	if (CreateInteractionWidget)
+	{
+		InteractionWidget = CreateInteractionWidget;
 	}
 }
 
@@ -77,7 +83,7 @@ void AOGTCharacter::Tick(float DeltaTime)
 
 	UpdateFieldOfView();
 
-	FindTrigger();
+	FindInteraction();
 
 	GEngine->AddOnScreenDebugMessage(21, 2.5, FColor::Cyan,
 							 FString::Printf(
@@ -96,13 +102,13 @@ void AOGTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AOGTCharacter::AimPressed);
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOGTCharacter::AimReleased);
 
-		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AOGTCharacter::Interact);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AOGTCharacter::CallInteract);
 	}
 }
 
 void AOGTCharacter::Move(const FInputActionValue& Value)
 {
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	const FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller)
 	{
@@ -119,7 +125,7 @@ void AOGTCharacter::Move(const FInputActionValue& Value)
 
 void AOGTCharacter::Look(const FInputActionValue& Value)
 {
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
@@ -144,18 +150,19 @@ void AOGTCharacter::AimReleased(const FInputActionValue& Value)
 	FieldOfView = FieldOfViewMax;
 }
 
-void AOGTCharacter::UpdateFieldOfView()
+void AOGTCharacter::UpdateFieldOfView() const
 {
 	if (!CameraComponent) return;
 
-	GetCameraComponent()->FieldOfView = UKismetMathLibrary::FInterpTo(GetCameraComponent()->FieldOfView, FieldOfView, DeltaSeconds, 6.5);
+	GetCameraComponent()->FieldOfView = UKismetMathLibrary::FInterpTo(GetCameraComponent()->FieldOfView, FieldOfView,
+	                                                                  DeltaSeconds, 6.5);
 
 	GEngine->AddOnScreenDebugMessage(20, 1.0, FColor::Cyan,
 								 FString::Printf(
-									 TEXT("FOV: %f interpolating to: %f"), CameraComponent->FieldOfView, FieldOfView));
+									 TEXT("FOV: %f"), CameraComponent->FieldOfView));
 }
 
-void AOGTCharacter::FindTrigger()
+void AOGTCharacter::FindInteraction()
 {
 	FVector ViewPoint;
 	FRotator ViewRotation;
@@ -171,47 +178,43 @@ void AOGTCharacter::FindTrigger()
 		
 	QueryParams.AddIgnoredActor(GetOwner());
 	QueryParams.bTraceComplex = true;
-		
+
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartPoint, EndPoint, ECC_Visibility, QueryParams);
 	if (bHit)
 	{
-		if (IsTrigger(HitResult.GetActor()))
+		if (IsInteractable(HitResult.GetActor()))
 		{
-			TempFoundActor = HitResult.GetActor();
-			auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempFoundActor);
-			if (FoundTrigger)
+			TempCachedActor = HitResult.GetActor();
+			const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(TempCachedActor);
+			if (FoundInteraction)
 			{
-				FoundTrigger->OnDetected(true);
-			}
-		}
-		if (!IsTrigger(HitResult.GetActor()))
-		{
-			if (TempFoundActor)
-			{
-				auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempFoundActor);
-				if (FoundTrigger)
+				FoundInteraction->OnDetected(true);
+				if (InteractionWidget && !InteractionWidget->IsInViewport())
 				{
-					FoundTrigger->OnDetected(false);
-					TempFoundActor = nullptr;
+					InteractionWidget->AddToViewport();
 				}
 			}
 		}
 	}
 	else
 	{
-		if (TempFoundActor && IsTrigger(TempFoundActor))
+		if (TempCachedActor && IsInteractable(TempCachedActor))
 		{
-			auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempFoundActor);
-			if (FoundTrigger)
+			auto FoundInteraction = Cast<IOGTInterfaceInteraction>(TempCachedActor);
+			if (FoundInteraction)
 			{
-				FoundTrigger->OnDetected(false);
-				TempFoundActor = nullptr;
+				FoundInteraction->OnDetected(false);
+				if (InteractionWidget && InteractionWidget->IsInViewport())
+				{
+					InteractionWidget->RemoveFromParent();
+				}
+				TempCachedActor = nullptr;
 			}
 		}
 	}
 }
 
-bool AOGTCharacter::IsTrigger(AActor* InFoundActor)
+bool AOGTCharacter::IsInteractable(const AActor* InFoundActor)
 {
 	if (InFoundActor->IsA(AOGTTrigger::StaticClass()))
 	{
@@ -220,11 +223,11 @@ bool AOGTCharacter::IsTrigger(AActor* InFoundActor)
 	return false;
 }
 
-void AOGTCharacter::Interact()
+void AOGTCharacter::CallInteract()
 {
 	if (CanInteract())
 	{
-		auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempFoundActor);
+		const auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempCachedActor);
 		if (FoundTrigger)
 		{
 			FoundTrigger->OnInteract();
@@ -234,12 +237,12 @@ void AOGTCharacter::Interact()
 
 bool AOGTCharacter::CanInteract()
 {
-	if (TempFoundActor)
+	if (TempCachedActor)
 	{
-		auto Trigger = Cast<IOGTInterfaceInteraction>(TempFoundActor);
+		const auto Trigger = Cast<IOGTInterfaceInteraction>(TempCachedActor);
 		if (!Trigger) return false;
 
-		return IsValid(TempFoundActor) && IsTrigger(TempFoundActor) || Trigger->IsInteractable();
+		return IsValid(TempCachedActor) && IsInteractable(TempCachedActor) || Trigger->IsInteractable();
 	}
 	return false;
 }

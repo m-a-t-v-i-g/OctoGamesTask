@@ -50,9 +50,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> InteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = UI, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> InteractionWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = UI, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UUserWidget> InteractionWidget;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
-	float FieldOfViewMin = 62.0;
+	float FieldOfViewMin = 60.0;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float FieldOfViewMax = 90.0;
@@ -62,7 +68,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float CameraSensitivity = 0.35;
 	
-	TObjectPtr<AActor> TempFoundActor;
+	TObjectPtr<AActor> TempCachedActor;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float TriggerDetectionRange = 39.0;
@@ -72,13 +78,13 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Controller")
-	APlayerController* GetPlayerController() { return Cast<APlayerController>(GetController()); }
+	APlayerController* GetPlayerController() const { return Cast<APlayerController>(Controller); }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Components")
-	UOGTStateComponent* GetStateComponent() { return StateComponent; }
+	UOGTStateComponent* GetStateComponent() const { return StateComponent; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Components")
-	UCameraComponent* GetCameraComponent() { return CameraComponent; }
+	UCameraComponent* GetCameraComponent() const { return CameraComponent; }
 	
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -86,12 +92,12 @@ public:
 	void AimPressed(const FInputActionValue& Value);
 	void AimReleased(const FInputActionValue& Value);
 
-	void UpdateFieldOfView();
+	void UpdateFieldOfView() const;
 
-	void FindTrigger();
-	bool IsTrigger(AActor* InFoundActor);
+	void FindInteraction();
+	bool IsInteractable(const AActor* InFoundActor);
 
-	void Interact();
+	void CallInteract();
 	bool CanInteract();
 
 };

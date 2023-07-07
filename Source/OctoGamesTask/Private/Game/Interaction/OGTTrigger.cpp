@@ -2,7 +2,6 @@
 
 #include "Game/Interaction/OGTTrigger.h"
 #include "Components/BoxComponent.h"
-#include "Game/OGTCharacter.h"
 
 AOGTTrigger::AOGTTrigger()
 {
@@ -14,7 +13,7 @@ AOGTTrigger::AOGTTrigger()
 
 	InteractionZone = CreateDefaultSubobject<UBoxComponent>("Interaction Zone");
 	InteractionZone->SetupAttachment(SceneComponent);
-	
+
 	PrimaryActorTick.bCanEverTick = true;
 
 }
