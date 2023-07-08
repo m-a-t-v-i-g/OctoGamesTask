@@ -7,21 +7,35 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/OGTInteractionComponent.h"
 #include "Components/OGTStateComponent.h"
 #include "Game/Interaction/OGTTrigger.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Kismet/KismetStringLibrary.h"
 
 AOGTCharacter::AOGTCharacter()
 {
+	GetMesh()->SetRelativeLocation(FVector(0.0, 0.0, -96.0));
+	GetMesh()->SetRelativeRotation(FRotator(0.0, -90.0, 0.0));
+
+	GetCharacterMovement()->MaxAcceleration = 750.0;
+	GetCharacterMovement()->BrakingFriction = 8.0;
+	GetCharacterMovement()->bUseSeparateBrakingFriction = true;
+	GetCharacterMovement()->GroundFriction = 1.5;
+	GetCharacterMovement()->MaxWalkSpeed = 340.0;
+	GetCharacterMovement()->BrakingDecelerationWalking = 350.0;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
+	GetCapsuleComponent()->SetCapsuleHalfHeight(96.0);
+	
 	StateComponent = CreateDefaultSubobject<UOGTStateComponent>("State Component");
+
+	InteractionComponent = CreateDefaultSubobject<UOGTInteractionComponent>("Interaction Component");
 	
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
 	SpringArmComponent->SetupAttachment(RootComponent);
@@ -45,7 +59,7 @@ AOGTCharacter::AOGTCharacter()
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Interact(TEXT("/Game/Blueprints/Player/Input/Actions/IA_Interact"));
 	InteractAction = IA_Interact.Object;
-
+	
 	PrimaryActorTick.bCanEverTick = true;
 
 }
@@ -67,12 +81,6 @@ void AOGTCharacter::BeginPlay()
 	{
 		FieldOfView = GetCameraComponent()->FieldOfView;
 	}
-
-	auto CreateInteractionWidget = CreateWidget<UUserWidget>(GetPlayerController(), InteractionWidgetClass);
-	if (CreateInteractionWidget)
-	{
-		InteractionWidget = CreateInteractionWidget;
-	}
 }
 
 void AOGTCharacter::Tick(float DeltaTime)
@@ -82,12 +90,6 @@ void AOGTCharacter::Tick(float DeltaTime)
 	DeltaSeconds = DeltaTime;
 
 	UpdateFieldOfView();
-
-	FindInteraction();
-
-	GEngine->AddOnScreenDebugMessage(21, 2.5, FColor::Cyan,
-							 FString::Printf(
-								 TEXT("Can interact: ")) + UKismetStringLibrary::Conv_BoolToString(CanInteract()));
 }
 
 void AOGTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -101,7 +103,7 @@ void AOGTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AOGTCharacter::AimPressed);
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOGTCharacter::AimReleased);
-
+		
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AOGTCharacter::CallInteract);
 	}
 }
@@ -162,87 +164,9 @@ void AOGTCharacter::UpdateFieldOfView() const
 									 TEXT("FOV: %f"), CameraComponent->FieldOfView));
 }
 
-void AOGTCharacter::FindInteraction()
-{
-	FVector ViewPoint;
-	FRotator ViewRotation;
-		
-	GetPlayerController()->GetPlayerViewPoint(ViewPoint, ViewRotation);
-
-	FHitResult HitResult;
-
-	FVector StartPoint = ViewPoint;
-	FVector EndPoint = StartPoint + ViewRotation.Vector() * (TriggerDetectionRange * 10.0);
-
-	FCollisionQueryParams QueryParams;
-		
-	QueryParams.AddIgnoredActor(GetOwner());
-	QueryParams.bTraceComplex = true;
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartPoint, EndPoint, ECC_Visibility, QueryParams);
-	if (bHit)
-	{
-		if (IsInteractable(HitResult.GetActor()))
-		{
-			TempCachedActor = HitResult.GetActor();
-			const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(TempCachedActor);
-			if (FoundInteraction)
-			{
-				FoundInteraction->OnDetected(true);
-				if (InteractionWidget && !InteractionWidget->IsInViewport())
-				{
-					InteractionWidget->AddToViewport();
-				}
-			}
-		}
-	}
-	else
-	{
-		if (TempCachedActor && IsInteractable(TempCachedActor))
-		{
-			auto FoundInteraction = Cast<IOGTInterfaceInteraction>(TempCachedActor);
-			if (FoundInteraction)
-			{
-				FoundInteraction->OnDetected(false);
-				if (InteractionWidget && InteractionWidget->IsInViewport())
-				{
-					InteractionWidget->RemoveFromParent();
-				}
-				TempCachedActor = nullptr;
-			}
-		}
-	}
-}
-
-bool AOGTCharacter::IsInteractable(const AActor* InFoundActor)
-{
-	if (InFoundActor->Implements<UOGTInterfaceInteraction>())
-	{
-		return true;
-	}
-	return false;
-}
-
 void AOGTCharacter::CallInteract()
 {
-	if (CanInteract())
-	{
-		const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(TempCachedActor);
-		if (FoundInteraction)
-		{
-			FoundInteraction->OnInteract();
-		}
-	}
-}
+	if (!InteractionComponent) return;
 
-bool AOGTCharacter::CanInteract()
-{
-	if (TempCachedActor)
-	{
-		const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(TempCachedActor);
-		if (!FoundInteraction) return false;
-
-		return IsValid(TempCachedActor) && IsInteractable(TempCachedActor) || FoundInteraction->IsInteractable();
-	}
-	return false;
+	InteractionComponent->CallInteract();
 }

@@ -8,6 +8,7 @@
 #include "OGTCharacter.generated.h"
 
 class UOGTStateComponent;
+class UOGTInteractionComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -29,6 +30,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
 	TObjectPtr<UOGTStateComponent> StateComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
+	TObjectPtr<UOGTInteractionComponent> InteractionComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
@@ -54,7 +58,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = UI, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UUserWidget> InteractionWidgetClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = UI, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UUserWidget> InteractionWidget;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
@@ -68,11 +71,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float CameraSensitivity = 0.35;
 	
-	TObjectPtr<AActor> TempCachedActor;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
-	float TriggerDetectionRange = 39.0;
-
 public:	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -94,10 +92,5 @@ public:
 
 	void UpdateFieldOfView() const;
 
-	void FindInteraction();
-	bool IsInteractable(const AActor* InFoundActor);
-
 	void CallInteract();
-	bool CanInteract();
-
 };
