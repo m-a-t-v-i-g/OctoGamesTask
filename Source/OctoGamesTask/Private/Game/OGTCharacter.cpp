@@ -216,7 +216,7 @@ void AOGTCharacter::FindInteraction()
 
 bool AOGTCharacter::IsInteractable(const AActor* InFoundActor)
 {
-	if (InFoundActor->IsA(AOGTTrigger::StaticClass()))
+	if (InFoundActor->Implements<UOGTInterfaceInteraction>())
 	{
 		return true;
 	}
@@ -227,10 +227,10 @@ void AOGTCharacter::CallInteract()
 {
 	if (CanInteract())
 	{
-		const auto FoundTrigger = Cast<IOGTInterfaceInteraction>(TempCachedActor);
-		if (FoundTrigger)
+		const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(TempCachedActor);
+		if (FoundInteraction)
 		{
-			FoundTrigger->OnInteract();
+			FoundInteraction->OnInteract();
 		}
 	}
 }
@@ -239,10 +239,10 @@ bool AOGTCharacter::CanInteract()
 {
 	if (TempCachedActor)
 	{
-		const auto Trigger = Cast<IOGTInterfaceInteraction>(TempCachedActor);
-		if (!Trigger) return false;
+		const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(TempCachedActor);
+		if (!FoundInteraction) return false;
 
-		return IsValid(TempCachedActor) && IsInteractable(TempCachedActor) || Trigger->IsInteractable();
+		return IsValid(TempCachedActor) && IsInteractable(TempCachedActor) || FoundInteraction->IsInteractable();
 	}
 	return false;
 }
