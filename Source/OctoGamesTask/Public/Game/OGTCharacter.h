@@ -24,6 +24,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Landed(const FHitResult& Hit) override;
 	
 	UPROPERTY(BlueprintReadOnly)
 	float DeltaSeconds = 0.0;
@@ -55,10 +56,19 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> InteractAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = UI, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<UUserWidget> InteractionWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> PauseAction;
 
-	TObjectPtr<UUserWidget> InteractionWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widgets")
+	TSubclassOf<UUserWidget> PauseMenuWidgetClass;
+
+	TObjectPtr<UUserWidget> PauseMenuWidget;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> SoftLandMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> HardLandMontage;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float FieldOfViewMin = 60.0;
@@ -71,7 +81,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float CameraSensitivity = 0.35;
 	
-public:	
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Falling")
+	bool SoftLanding = false;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Falling")
+	bool MediumLanding = false;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Falling")
+	bool HardLanding = false;
+	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -90,7 +109,12 @@ public:
 	void AimPressed(const FInputActionValue& Value);
 	void AimReleased(const FInputActionValue& Value);
 
-	void UpdateFieldOfView() const;
+	void SetFieldOfView() const;
 
 	void CallInteract();
+
+	void CallPause();
+	
+	void SetFallingType();
+
 };

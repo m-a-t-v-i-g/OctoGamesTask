@@ -7,6 +7,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/OGTInteractionComponent.h"
 #include "Components/OGTStateComponent.h"
@@ -59,6 +60,12 @@ AOGTCharacter::AOGTCharacter()
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Interact(TEXT("/Game/Blueprints/Player/Input/Actions/IA_Interact"));
 	InteractAction = IA_Interact.Object;
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> IA_Pause(TEXT("/Game/Blueprints/Player/Input/Actions/IA_Pause"));
+	PauseAction = IA_Pause.Object;
+	
+	static ConstructorHelpers::FClassFinder<UUserWidget> WB_OGTPauseMenu(TEXT("/Game/UI/Menu/WB_OGTPauseMenu"));
+	PauseMenuWidgetClass = WB_OGTPauseMenu.Class;
 	
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -75,6 +82,12 @@ void AOGTCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+		
+		auto CreatePauseMenuWidget = CreateWidget<UUserWidget>(GetPlayerController(), PauseMenuWidgetClass);
+		if (CreatePauseMenuWidget)
+		{
+			PauseMenuWidget = CreatePauseMenuWidget;
+		}
 	}
 
 	if (GetCameraComponent())
@@ -89,7 +102,9 @@ void AOGTCharacter::Tick(float DeltaTime)
 
 	DeltaSeconds = DeltaTime;
 
-	UpdateFieldOfView();
+	SetFieldOfView();
+
+	SetFallingType();
 }
 
 void AOGTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -105,6 +120,8 @@ void AOGTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AOGTCharacter::AimReleased);
 		
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AOGTCharacter::CallInteract);
+		
+		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &AOGTCharacter::CallPause);
 	}
 }
 
@@ -152,16 +169,12 @@ void AOGTCharacter::AimReleased(const FInputActionValue& Value)
 	FieldOfView = FieldOfViewMax;
 }
 
-void AOGTCharacter::UpdateFieldOfView() const
+void AOGTCharacter::SetFieldOfView() const
 {
 	if (!CameraComponent) return;
 
 	GetCameraComponent()->FieldOfView = UKismetMathLibrary::FInterpTo(GetCameraComponent()->FieldOfView, FieldOfView,
 	                                                                  DeltaSeconds, 6.5);
-
-	GEngine->AddOnScreenDebugMessage(20, 1.0, FColor::Cyan,
-								 FString::Printf(
-									 TEXT("FOV: %f"), CameraComponent->FieldOfView));
 }
 
 void AOGTCharacter::CallInteract()
@@ -169,4 +182,49 @@ void AOGTCharacter::CallInteract()
 	if (!InteractionComponent) return;
 
 	InteractionComponent->CallInteract();
+}
+
+void AOGTCharacter::CallPause()
+{
+	if (!PauseMenuWidget) return;
+	
+	if (!PauseMenuWidget->IsInViewport())
+	{
+		GetPlayerController()->SetShowMouseCursor(true);
+		PauseMenuWidget->AddToViewport();
+		UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(GetPlayerController(), PauseMenuWidget);
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+	}
+}
+
+void AOGTCharacter::SetFallingType()
+{
+	if (!GetMovementComponent()) return;
+
+	if (GetMovementComponent()->IsFalling())
+	{
+		const auto Velocity = GetMovementComponent()->Velocity.Z;
+		
+		SoftLanding = Velocity <= 0.0 && Velocity >= -200.0;
+		MediumLanding = Velocity <= -200.0 && Velocity >= -600.0;
+		HardLanding = Velocity <= -600.0;
+	}
+	else
+	{
+		SoftLanding = false;
+		MediumLanding = false;
+		HardLanding = false;
+	}
+}
+
+void AOGTCharacter::Landed(const FHitResult& Hit)
+{
+	if (SoftLanding || MediumLanding)
+	{
+		PlayAnimMontage(SoftLandMontage, 2.0);
+	}
+	else if (HardLanding)
+	{
+		PlayAnimMontage(HardLandMontage, 1.3);
+	}
 }

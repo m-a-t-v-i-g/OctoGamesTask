@@ -21,7 +21,8 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = UI, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UUserWidget> InteractionWidgetClass;
-	
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = UI, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UUserWidget> InteractionWidget;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Interaction")

@@ -22,7 +22,6 @@ void UOGTInteractionComponent::BeginPlay()
 	{
 		InteractionWidget = CreateInteractionWidget;
 	}
-
 }
 
 void UOGTInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -63,21 +62,20 @@ void UOGTInteractionComponent::FindInteraction()
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartPoint, EndPoint, ECC_Visibility, QueryParams);
 	if (bHit)
 	{
-		AActor* FoundActor = nullptr;
-
-		FoundActor = HitResult.GetActor();
+		AActor* FoundActor = HitResult.GetActor();
 		FoundActors.AddUnique(FoundActor);
-		
+
 		for (auto EachActor : FoundActors)
 		{
 			if (IsInteractable(EachActor))
 			{
 				FoundCachedActors.AddUnique(EachActor);
+
 				const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(EachActor);
 				if (FoundInteraction)
 				{
 					FoundInteraction->OnDetected(true);
-					if (InteractionWidget && !InteractionWidget->IsInViewport())
+					if (!InteractionWidget->IsInViewport())
 					{
 						InteractionWidget->AddToViewport();
 					}
@@ -94,10 +92,10 @@ void UOGTInteractionComponent::FindInteraction()
 			{
 				FoundInteraction->OnDetected(false);
 				FoundCachedActors.RemoveAt(i);
-				if (InteractionWidget && InteractionWidget->IsInViewport())
-				{
-					InteractionWidget->RemoveFromParent();
-				}
+			}
+			if (InteractionWidget->IsInViewport())
+			{
+				InteractionWidget->RemoveFromParent();
 			}
 		}
 	}

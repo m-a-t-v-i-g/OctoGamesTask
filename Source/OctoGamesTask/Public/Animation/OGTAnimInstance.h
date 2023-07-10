@@ -48,14 +48,17 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "State")
 	bool ShouldWalk = false;
 
-	UPROPERTY(BlueprintReadWrite, Category = "State")
+	UPROPERTY(BlueprintReadWrite, Category = "Falling")
 	bool IsFalling = false;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Foots")
-	bool LeftForward = false;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Foots")
-	bool LeftUp = false;
+	UPROPERTY(BlueprintReadWrite, Category = "Falling")
+	bool SoftLanding = false;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Falling")
+	bool MediumLanding = false;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Falling")
+	bool HardLanding = false;
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Turn")
 	float TurnPivot = 0.0;
@@ -86,6 +89,8 @@ public:
 	void SetMovement();
 	void SetMovementDirection(float InDotProduct);
 
+	void SetFallingType();
+	
 	void SetTurn();
 	void SetLean();
 	

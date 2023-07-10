@@ -27,17 +27,12 @@ protected:
 	TObjectPtr<UButton> MainMenu_ButtonStart;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UButton> MainMenu_ButtonSettings;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UButton> MainMenu_ButtonQuit;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UTextBlock> MainMenu_TextStart;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UTextBlock> MainMenu_TextSettings;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UTextBlock> MainMenu_TextQuit;
+
 };

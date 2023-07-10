@@ -2,6 +2,7 @@
 
 #include "Animation/OGTAnimInstance.h"
 #include "Components/OGTStateComponent.h"
+#include "Game/OGTCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -32,6 +33,8 @@ void UOGTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	SetAimOffset();
 	
 	SetMovement();
+
+	SetFallingType();
 	
 	SetTurn();
 	SetLean();
@@ -58,10 +61,6 @@ void UOGTAnimInstance::SetAimOffset()
 	float TargetY = GetAimOffset.Yaw;
 
 	AimOffset = UKismetMathLibrary::Vector2DInterpTo(AimOffset, FVector2D(TargetX, TargetY), DeltaTime, AimSmooth);
-
-	GEngine->AddOnScreenDebugMessage(11, 1.0, FColor::Cyan,
-								 FString::Printf(
-									 TEXT("Aim offset X: %f Y: %f"), AimOffset.X, AimOffset.Y));
 }
 
 void UOGTAnimInstance::SetMovement()
@@ -75,15 +74,7 @@ void UOGTAnimInstance::SetMovement()
 	auto CrossProduct = FVector::CrossProduct(Character->GetActorForwardVector(), Velocity.GetSafeNormal());
 
 	IsFalling = MovementComponent->IsFalling();
-	if (IsFalling)
-	{
-		Direction = 0.0;
-		
-		GEngine->AddOnScreenDebugMessage(33, 1.0, FColor::Cyan,
-									 FString::Printf(
-										 TEXT("Direction of falling: %f"), Direction));
 
-	}
 	Direction = UKismetMathLibrary::DegAcos(DotProduct) * UKismetMathLibrary::SignOfFloat(CrossProduct.Z);
 	
 	ShouldMove = IsMoving();
@@ -104,6 +95,18 @@ void UOGTAnimInstance::SetMovementDirection(float InDotProduct)
 	{
 		MovementDir = EMovementDir::MovingB;
 	}
+}
+
+void UOGTAnimInstance::SetFallingType()
+{
+	if (!Character || !MovementComponent) return;
+
+	auto OGTCharacter = Cast<AOGTCharacter>(Character);
+	if (!OGTCharacter) return;
+	
+	SoftLanding = OGTCharacter->SoftLanding;
+	MediumLanding = OGTCharacter->MediumLanding;
+	HardLanding = OGTCharacter->HardLanding;
 }
 
 void UOGTAnimInstance::SetTurn()
