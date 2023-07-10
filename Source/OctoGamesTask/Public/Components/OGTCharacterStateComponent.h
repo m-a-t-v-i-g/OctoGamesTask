@@ -6,15 +6,15 @@
 #include "OGTTypes.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/Character.h"
-#include "OGTStateComponent.generated.h"
+#include "OGTCharacterStateComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class OCTOGAMESTASK_API UOGTStateComponent : public UActorComponent
+class OCTOGAMESTASK_API UOGTCharacterStateComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	UOGTStateComponent();
+	UOGTCharacterStateComponent();
 
 protected:
 	virtual void BeginPlay() override;

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Animation/OGTAnimInstance.h"
-#include "Components/OGTStateComponent.h"
+#include "Components/OGTCharacterStateComponent.h"
 #include "Game/OGTCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -44,7 +44,7 @@ void UOGTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 void UOGTAnimInstance::SetCharacterState()
 {
-	auto GetStateComponent = Character->FindComponentByClass<UOGTStateComponent>();
+	auto GetStateComponent = Character->FindComponentByClass<UOGTCharacterStateComponent>();
 	if (!GetStateComponent) return;
 
 	CharacterState = GetStateComponent->GetCharacterState();
@@ -52,7 +52,7 @@ void UOGTAnimInstance::SetCharacterState()
 
 void UOGTAnimInstance::SetAimOffset()
 {
-	auto GetStateComponent = Character->FindComponentByClass<UOGTStateComponent>();
+	auto GetStateComponent = Character->FindComponentByClass<UOGTCharacterStateComponent>();
 	if (!GetStateComponent) return;
 
 	FRotator GetAimOffset = GetStateComponent->GetAimOffset();

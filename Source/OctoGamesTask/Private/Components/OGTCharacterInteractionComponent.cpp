@@ -1,22 +1,22 @@
 // Test task by matvig. All rights reserved.
 
-#include "Components/OGTInteractionComponent.h"
+#include "Components/OGTCharacterInteractionComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "GameFramework/Character.h"
 #include "Interfaces/OGTInterfaceInteraction.h"
 
-UOGTInteractionComponent::UOGTInteractionComponent()
+UOGTCharacterInteractionComponent::UOGTCharacterInteractionComponent()
 {
 	static ConstructorHelpers::FClassFinder<UUserWidget> WB_InteractionWidget(TEXT("/Game/UI/Player/WB_InteractionWidget"));
 	InteractionWidgetClass = WB_InteractionWidget.Class;
 	
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
 
-void UOGTInteractionComponent::BeginPlay()
+void UOGTCharacterInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	auto CreateInteractionWidget = CreateWidget<UUserWidget>(GetPlayerController(), InteractionWidgetClass);
 	if (CreateInteractionWidget)
 	{
@@ -24,14 +24,14 @@ void UOGTInteractionComponent::BeginPlay()
 	}
 }
 
-void UOGTInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UOGTCharacterInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
+
 	FindInteraction();
 }
 
-APlayerController* UOGTInteractionComponent::GetPlayerController() const
+APlayerController* UOGTCharacterInteractionComponent::GetPlayerController() const
 {
 	const auto CharacterOwner = Cast<ACharacter>(GetOwner())->GetController();
 	if (!CharacterOwner) return nullptr;
@@ -39,7 +39,7 @@ APlayerController* UOGTInteractionComponent::GetPlayerController() const
 	return Cast<APlayerController>(CharacterOwner);
 }
 
-void UOGTInteractionComponent::FindInteraction()
+void UOGTCharacterInteractionComponent::FindInteraction()
 {
 	TArray<AActor*> FoundActors;
 	
@@ -101,8 +101,7 @@ void UOGTInteractionComponent::FindInteraction()
 	}
 }
 
-
-bool UOGTInteractionComponent::IsInteractable(const AActor* InFoundActor)
+bool UOGTCharacterInteractionComponent::IsInteractable(const AActor* InFoundActor)
 {
 	if (InFoundActor->Implements<UOGTInterfaceInteraction>())
 	{
@@ -111,7 +110,7 @@ bool UOGTInteractionComponent::IsInteractable(const AActor* InFoundActor)
 	return false;
 }
 
-void UOGTInteractionComponent::CallInteract()
+void UOGTCharacterInteractionComponent::CallInteract()
 {
 	if (CanInteract())
 	{
@@ -126,7 +125,7 @@ void UOGTInteractionComponent::CallInteract()
 	}
 }
 
-bool UOGTInteractionComponent::CanInteract()
+bool UOGTCharacterInteractionComponent::CanInteract()
 {
 	for (const auto TempCachedActor : FoundCachedActors)
 	{
@@ -140,3 +139,4 @@ bool UOGTInteractionComponent::CanInteract()
 	}
 	return false;
 }
+

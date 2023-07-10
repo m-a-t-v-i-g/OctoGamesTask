@@ -9,8 +9,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/OGTInteractionComponent.h"
-#include "Components/OGTStateComponent.h"
+#include "Components/OGTCharacterInteractionComponent.h"
+#include "Components/OGTCharacterStateComponent.h"
 #include "Game/Interaction/OGTTrigger.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -34,16 +34,16 @@ AOGTCharacter::AOGTCharacter()
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(96.0);
 	
-	StateComponent = CreateDefaultSubobject<UOGTStateComponent>("State Component");
+	CharacterState = CreateDefaultSubobject<UOGTCharacterStateComponent>("CharStateComp");
 
-	InteractionComponent = CreateDefaultSubobject<UOGTInteractionComponent>("Interaction Component");
+	CharacterInteraction = CreateDefaultSubobject<UOGTCharacterInteractionComponent>("CharInterComp");
 	
-	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	SpringArmComponent->SetupAttachment(RootComponent);
 	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->SocketOffset = FVector(98.0, 50.0, 72.0);
 
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_Default(TEXT("/Game/Blueprints/Player/Input/IMC_Default"));
@@ -66,7 +66,7 @@ AOGTCharacter::AOGTCharacter()
 	
 	static ConstructorHelpers::FClassFinder<UUserWidget> WB_OGTPauseMenu(TEXT("/Game/UI/Menu/WB_OGTPauseMenu"));
 	PauseMenuWidgetClass = WB_OGTPauseMenu.Class;
-	
+
 	PrimaryActorTick.bCanEverTick = true;
 
 }
@@ -155,7 +155,7 @@ void AOGTCharacter::Look(const FInputActionValue& Value)
 
 void AOGTCharacter::AimPressed(const FInputActionValue& Value)
 {
-	if (!StateComponent || !CameraComponent) return;
+	if (!CharacterState || !CameraComponent) return;
 
 	GetStateComponent()->SetCharacterState(ECharacterState::Aiming);
 	FieldOfView = FieldOfViewMin;
@@ -163,7 +163,7 @@ void AOGTCharacter::AimPressed(const FInputActionValue& Value)
 
 void AOGTCharacter::AimReleased(const FInputActionValue& Value)
 {
-	if (!StateComponent || !CameraComponent) return;
+	if (!CharacterState || !CameraComponent) return;
 
 	GetStateComponent()->SetCharacterState(ECharacterState::NotAiming);
 	FieldOfView = FieldOfViewMax;
@@ -179,9 +179,9 @@ void AOGTCharacter::SetFieldOfView() const
 
 void AOGTCharacter::CallInteract()
 {
-	if (!InteractionComponent) return;
+	if (!CharacterInteraction) return;
 
-	InteractionComponent->CallInteract();
+	CharacterInteraction->CallInteract();
 }
 
 void AOGTCharacter::CallPause()

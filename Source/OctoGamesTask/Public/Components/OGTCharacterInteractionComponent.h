@@ -4,21 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "GameFramework/Character.h"
-#include "OGTInteractionComponent.generated.h"
+#include "OGTCharacterInteractionComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class OCTOGAMESTASK_API UOGTInteractionComponent : public UActorComponent
+class OCTOGAMESTASK_API UOGTCharacterInteractionComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	UOGTInteractionComponent();
+	UOGTCharacterInteractionComponent();
 
 protected:
 	virtual void BeginPlay() override;
 
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = UI, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UUserWidget> InteractionWidgetClass;
 
@@ -30,10 +28,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
 	float InteractionRange = 39.0;
-	
+
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Controller")
 	APlayerController* GetPlayerController() const;
 

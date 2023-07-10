@@ -1,29 +1,29 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Components/OGTStateComponent.h"
+#include "Components/OGTCharacterStateComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-UOGTStateComponent::UOGTStateComponent()
+UOGTCharacterStateComponent::UOGTCharacterStateComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
 }
 
-void UOGTStateComponent::BeginPlay()
+void UOGTCharacterStateComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 }
 
-void UOGTStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UOGTCharacterStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	AimTick(DeltaTime);
 }
 
-void UOGTStateComponent::SetCharacterState(ECharacterState InCharacterState)
+void UOGTCharacterStateComponent::SetCharacterState(ECharacterState InCharacterState)
 {
 	CharacterState = InCharacterState;
 	switch (CharacterState)
@@ -39,7 +39,7 @@ void UOGTStateComponent::SetCharacterState(ECharacterState InCharacterState)
 	}
 }
 
-void UOGTStateComponent::AimTick(float DeltaTime)
+void UOGTCharacterStateComponent::AimTick(float DeltaTime)
 {
 	if (GetOwnerController())
 	{

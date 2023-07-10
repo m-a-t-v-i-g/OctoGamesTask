@@ -7,8 +7,8 @@
 #include "InputActionValue.h"
 #include "OGTCharacter.generated.h"
 
-class UOGTStateComponent;
-class UOGTInteractionComponent;
+class UOGTCharacterStateComponent;
+class UOGTCharacterInteractionComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -30,11 +30,11 @@ protected:
 	float DeltaSeconds = 0.0;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
-	TObjectPtr<UOGTStateComponent> StateComponent;
+	TObjectPtr<UOGTCharacterStateComponent> CharacterState;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
-	TObjectPtr<UOGTInteractionComponent> InteractionComponent;
-	
+	TObjectPtr<UOGTCharacterInteractionComponent> CharacterInteraction;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Components)
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 
@@ -98,7 +98,7 @@ public:
 	APlayerController* GetPlayerController() const { return Cast<APlayerController>(Controller); }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Components")
-	UOGTStateComponent* GetStateComponent() const { return StateComponent; }
+	UOGTCharacterStateComponent* GetStateComponent() const { return CharacterState; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Components")
 	UCameraComponent* GetCameraComponent() const { return CameraComponent; }
