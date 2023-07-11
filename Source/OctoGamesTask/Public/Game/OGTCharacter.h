@@ -89,8 +89,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Aim")
 	float CameraSensitivity = 0.35;
-	
+
 public:
+	UPROPERTY(BlueprintReadWrite, Category = "Game")
+	bool IsGamePaused = false;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Falling")
 	bool SoftLanding = false;
 	

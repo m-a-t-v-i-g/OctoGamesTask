@@ -82,12 +82,6 @@ void AOGTCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
-		
-		auto CreatePauseMenuWidget = CreateWidget<UUserWidget>(GetPlayerController(), PauseMenuWidgetClass);
-		if (CreatePauseMenuWidget)
-		{
-			PauseMenuWidget = CreatePauseMenuWidget;
-		}
 	}
 
 	if (GetCameraComponent())
@@ -203,14 +197,34 @@ void AOGTCharacter::CallInteract()
 
 void AOGTCharacter::CallPause()
 {
-	if (!PauseMenuWidget) return;
-	
-	if (!PauseMenuWidget->IsInViewport())
+	if (!IsGamePaused)
 	{
-		GetPlayerController()->SetShowMouseCursor(true);
-		PauseMenuWidget->AddToViewport();
-		UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(GetPlayerController(), PauseMenuWidget);
-		UGameplayStatics::SetGamePaused(GetWorld(), true);
+		IsGamePaused = true;
+		
+		auto CreatePauseMenuWidget = CreateWidget<UUserWidget>(GetPlayerController(), PauseMenuWidgetClass);
+		if (CreatePauseMenuWidget)
+		{
+			PauseMenuWidget = CreatePauseMenuWidget;
+			if (!PauseMenuWidget->IsInViewport())
+			{
+				PauseMenuWidget->AddToViewport();
+				GetPlayerController()->SetShowMouseCursor(true);
+				UGameplayStatics::SetGamePaused(GetWorld(), true);
+				UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(GetPlayerController(), PauseMenuWidget);
+			}
+		}
+	}
+	else
+	{
+		IsGamePaused = false;
+		
+		if (PauseMenuWidget->IsInViewport())
+		{
+			PauseMenuWidget->RemoveFromParent();
+			GetPlayerController()->SetShowMouseCursor(false);
+			UGameplayStatics::SetGamePaused(GetWorld(), false);
+			UWidgetBlueprintLibrary::SetInputMode_GameOnly(GetPlayerController());
+		}
 	}
 }
 
