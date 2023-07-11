@@ -29,15 +29,6 @@ enum class EInteractionType : uint8
 	Trigger UMETA(DisplayName = "Trigger")
 };
 
-
-UENUM(BlueprintType)
-enum class EAICharacterAction : uint8
-{
-	Greeting UMETA(DisplayName = "Greeting"),
-	Dance UMETA(DisplayName = "Dance"),
-	Talk UMETA(DisplayName = "Talk")
-};
-
 UCLASS()
 class OCTOGAMESTASK_API UOGTTypes : public UBlueprintFunctionLibrary
 {

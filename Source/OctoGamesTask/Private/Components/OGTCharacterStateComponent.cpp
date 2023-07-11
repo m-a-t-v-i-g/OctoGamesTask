@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Test task by matvig. All rights reserved.
 
 #include "Components/OGTCharacterStateComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -46,15 +46,8 @@ void UOGTCharacterStateComponent::AimTick(float DeltaTime)
 		FVector ViewPoint;
 		FRotator ViewRotation;
 
-		FVector SocketPoint;
-		FRotator SocketRotation;
-
 		GetOwnerController()->GetPlayerViewPoint(ViewPoint, ViewRotation);
-		GetOwnerCharacter()->GetMesh()->GetSocketWorldLocationAndRotation(SocketName, SocketPoint, SocketRotation);
-		
-		FVector StartPoint = SocketPoint;
-		FVector EndPoint = StartPoint + ViewRotation.Vector() * 1000.0;
-		
+	
 		auto CrossProduct = FVector::CrossProduct(GetOwnerCharacter()->GetActorRotation().Vector(), ViewRotation.Vector());
 
 		AimOffset = FRotator(UKismetMathLibrary::RadiansToDegrees(CrossProduct.Z) * UE_HALF_PI,

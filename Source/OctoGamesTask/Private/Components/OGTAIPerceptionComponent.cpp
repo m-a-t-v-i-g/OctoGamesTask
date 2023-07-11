@@ -1,7 +1,6 @@
 // Test task by matvig. All rights reserved.
 
 #include "Components/OGTAIPerceptionComponent.h"
-
 #include "AIController.h"
 #include "Game/OGTCharacter.h"
 #include "Perception/AISense_Sight.h"

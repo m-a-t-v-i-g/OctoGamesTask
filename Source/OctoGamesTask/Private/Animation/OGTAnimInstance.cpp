@@ -39,6 +39,8 @@ void UOGTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	SetTurn();
 	SetLean();
 
+	StopDance();
+	
 	PreviousRotation = TryGetPawnOwner()->GetActorRotation();
 }
 
@@ -135,3 +137,11 @@ bool UOGTAnimInstance::IsWalking()
 	return IsMoving() && GroundSpeed < 165.0;
 }
 
+void UOGTAnimInstance::StopDance()
+{
+	if (ShouldMove)
+	{
+		const FName GroupName = "DanceGroup";
+		Montage_StopGroupByName(0.4, GroupName);
+	}
+}

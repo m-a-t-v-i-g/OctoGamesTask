@@ -1,7 +1,6 @@
 // Test task by matvig. All rights reserved.
 
 #include "Game/AI/Tasks/OGTPlayerGreetingBTTask.h"
-
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Game/AI/OGTAICharacter.h"

@@ -1,7 +1,6 @@
 // Test task by matvig. All rights reserved.
 
 #include "Game/AI/OGTAIController.h"
-
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/OGTAIPerceptionComponent.h"
 #include "Game/AI/OGTAICharacter.h"

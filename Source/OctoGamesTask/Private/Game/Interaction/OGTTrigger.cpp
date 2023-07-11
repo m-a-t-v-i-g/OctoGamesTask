@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Test task by matvig. All rights reserved.
 
 #include "Game/Interaction/OGTTrigger.h"
 #include "Components/BoxComponent.h"

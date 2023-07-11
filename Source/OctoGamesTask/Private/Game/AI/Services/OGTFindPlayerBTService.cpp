@@ -1,7 +1,6 @@
 // Test task by matvig. All rights reserved.
 
 #include "Game/AI/Services/OGTFindPlayerBTService.h"
-
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/OGTAIPerceptionComponent.h"

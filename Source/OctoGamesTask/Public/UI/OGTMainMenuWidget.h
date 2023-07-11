@@ -10,6 +10,7 @@ class UCanvasPanel;
 class UVerticalBox;
 class UButton;
 class UTextBlock;
+class UImage;
 
 UCLASS()
 class OCTOGAMESTASK_API UOGTMainMenuWidget : public UUserWidget
@@ -34,5 +35,8 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UTextBlock> MainMenu_TextQuit;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UImage> MainMenu_BackgroundPanel;
 
 };
