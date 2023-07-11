@@ -2,6 +2,9 @@
 
 #include "Components/OGTCharacterInteractionComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Game/AI/OGTAICharacter.h"
+#include "Game/Interaction/OGTItem.h"
+#include "Game/Interaction/OGTTrigger.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/OGTInterfaceInteraction.h"
 
@@ -110,13 +113,30 @@ bool UOGTCharacterInteractionComponent::IsInteractable(const AActor* InFoundActo
 	return false;
 }
 
+EInteractionType UOGTCharacterInteractionComponent::GetInteractionType()
+{
+	for (const auto EachActor : FoundCachedActors)
+	{
+		if (EachActor)
+		{
+			const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(EachActor);
+			if (!FoundInteraction) return EInteractionType::Invalid;
+
+			if (EachActor->IsA(AOGTAICharacter::StaticClass())) return EInteractionType::Human;
+			if (EachActor->IsA(AOGTItem::StaticClass())) return EInteractionType::Item;
+			if (EachActor->IsA(AOGTTrigger::StaticClass())) return EInteractionType::Trigger;
+		}
+	}
+	return EInteractionType::Invalid;
+}
+
 void UOGTCharacterInteractionComponent::CallInteract()
 {
 	if (CanInteract())
 	{
-		for (const auto TempCachedActor : FoundCachedActors)
+		for (const auto EachActor : FoundCachedActors)
 		{
-			const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(TempCachedActor);
+			const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(EachActor);
 			if (FoundInteraction)
 			{
 				FoundInteraction->OnInteract();
@@ -127,14 +147,14 @@ void UOGTCharacterInteractionComponent::CallInteract()
 
 bool UOGTCharacterInteractionComponent::CanInteract()
 {
-	for (const auto TempCachedActor : FoundCachedActors)
+	for (const auto EachActor : FoundCachedActors)
 	{
-		if (TempCachedActor)
+		if (EachActor)
 		{
-			const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(TempCachedActor);
+			const auto FoundInteraction = Cast<IOGTInterfaceInteraction>(EachActor);
 			if (!FoundInteraction) return false;
 
-			return IsValid(TempCachedActor) && IsInteractable(TempCachedActor) || FoundInteraction->IsInteractable();
+			return IsValid(EachActor) && IsInteractable(EachActor) || FoundInteraction->IsInteractable();
 		}
 	}
 	return false;

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Test task by matvig. All rights reserved.
 
 #pragma once
 
@@ -17,6 +17,25 @@ enum class EMovementDir : uint8
 {
 	MovingF UMETA(DisplayName = "Forward"),
 	MovingB UMETA(DisplayName = "Backward")
+};
+
+UENUM(BlueprintType)
+enum class EInteractionType : uint8
+{
+	Invalid UMETA(DisplayName = "Invalid"),
+
+	Human UMETA(DisplayName = "Human"),
+	Item UMETA(DisplayName = "Item"),
+	Trigger UMETA(DisplayName = "Trigger")
+};
+
+
+UENUM(BlueprintType)
+enum class EAICharacterAction : uint8
+{
+	Greeting UMETA(DisplayName = "Greeting"),
+	Dance UMETA(DisplayName = "Dance"),
+	Talk UMETA(DisplayName = "Talk")
 };
 
 UCLASS()

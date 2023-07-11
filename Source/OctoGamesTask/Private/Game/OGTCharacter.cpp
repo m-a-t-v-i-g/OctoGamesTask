@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Test task by matvig. All rights reserved.
 
 #include "Game/OGTCharacter.h"
 #include "Camera/CameraComponent.h"
@@ -179,9 +179,26 @@ void AOGTCharacter::SetFieldOfView() const
 
 void AOGTCharacter::CallInteract()
 {
-	if (!CharacterInteraction) return;
+	if (!CharacterInteraction && !CharacterInteraction->CanInteract()) return;
 
 	CharacterInteraction->CallInteract();
+
+	switch (CharacterInteraction->GetInteractionType())
+	{
+	case EInteractionType::Invalid :
+		break;
+	case EInteractionType::Human :
+		PlayAnimMontage(DanceMontage);
+		break;
+	case EInteractionType::Item :
+		PlayAnimMontage(InteractionItemMontage);
+		break;
+	case EInteractionType::Trigger :
+		PlayAnimMontage(InteractionTriggerMontage);
+		break;
+	default:
+		break;
+	}
 }
 
 void AOGTCharacter::CallPause()

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OGTTypes.h"
 #include "Components/ActorComponent.h"
 #include "OGTCharacterInteractionComponent.generated.h"
 
@@ -34,10 +35,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Controller")
 	APlayerController* GetPlayerController() const;
-
+	
 	void FindInteraction();
 	bool IsInteractable(const AActor* InFoundActor);
 
+	EInteractionType GetInteractionType();
+	
 	void CallInteract();
 	bool CanInteract();
 };

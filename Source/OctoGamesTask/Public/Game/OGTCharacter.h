@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Test task by matvig. All rights reserved.
 
 #pragma once
 
@@ -63,6 +63,15 @@ protected:
 	TSubclassOf<UUserWidget> PauseMenuWidgetClass;
 
 	TObjectPtr<UUserWidget> PauseMenuWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> DanceMontage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> InteractionItemMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> InteractionTriggerMontage;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation")
 	TObjectPtr<UAnimMontage> SoftLandMontage;
